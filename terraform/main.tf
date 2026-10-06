@@ -18,7 +18,7 @@ provider "aws" {
 # Bucket names are global across all of AWS, not just your account — pick
 # something unlikely to collide with anyone else's bucket.
 resource "aws_s3_bucket" "main" {
-  bucket = <FILL_IN> # e.g. "lab05-<your-pennkey>-website"
+  bucket = "lab06-riyaptil-website" # e.g. "lab05-<your-pennkey>-website"
 }
 
 # Turns the bucket into a (very basic) web server: this is what tells S3 to
@@ -26,7 +26,7 @@ resource "aws_s3_bucket" "main" {
 resource "aws_s3_bucket_website_configuration" "main" {
   # Reference the bucket resource above instead of hardcoding its name —
   # Terraform uses this to know it must create the bucket first.
-  bucket = <FILL_IN>
+  bucket = aws_s3_bucket.main.bucket
 
   index_document {
     suffix = "index.html"
@@ -36,7 +36,7 @@ resource "aws_s3_bucket_website_configuration" "main" {
 # New buckets block all public access by default. Hosting a public website
 # means explicitly turning that safety default off for this bucket.
 resource "aws_s3_bucket_public_access_block" "main" {
-  bucket = <FILL_IN> # reference the bucket, same as above
+  bucket = aws_s3_bucket.main.bucket # reference the bucket, same as above
 
   block_public_acls       = false
   block_public_policy     = false
@@ -47,7 +47,7 @@ resource "aws_s3_bucket_public_access_block" "main" {
 # Turning off the block above doesn't grant access by itself — this policy
 # is what actually says "anyone can read objects in this bucket."
 resource "aws_s3_bucket_policy" "main" {
-  bucket = <FILL_IN> # reference the bucket, same as above
+  bucket = aws_s3_bucket.main.bucket # reference the bucket, same as above
 
   # There's no Terraform attribute linking this resource to the public
   # access block above (the policy JSON below is just a string), so
@@ -74,7 +74,7 @@ resource "aws_s3_bucket_policy" "main" {
 # any other resource — it'll show up in `terraform state list` and get
 # deleted on `terraform destroy`, same as the bucket.
 resource "aws_s3_object" "index" {
-  bucket       = <FILL_IN> # reference the bucket, same as above
+  bucket       = aws_s3_bucket.main.bucket # reference the bucket, same as above
   key          = "index.html"
   content_type = "text/html"
   content      = <<-HTML
